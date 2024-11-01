@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { Col, Container } from 'react-bootstrap'
 import Spline from 'cubic-spline'
 import Plot from 'react-plotly.js';
+import axios from 'axios';
+// import { json } from 'body-parser';
 
 function test() {
     const [num, setNum] = useState(1)
@@ -62,10 +64,19 @@ function test() {
         }
         setgraphX(plotX)
         setgraphY(plotY)
+        // graph();
 
     }
 
-    
+    const GetData=()=>{
+        axios.get("http://localhost:8088/spline2").then(e => {
+            setNum(JSON.parse(e.data[0].inputdata).num);
+            setArrX(JSON.parse(e.data[0].inputdata).x);
+            setInput(JSON.parse(e.data[0].inputdata).input);
+            console.log((JSON.parse(e.data[0].inputdata)))
+            setArrY(JSON.parse(e.data[0].inputdata).y);
+        })
+    }
     return (
         <Container>
             <h6>Spline test</h6>
@@ -89,8 +100,10 @@ function test() {
             </Col>
             <br></br>
             <button onClick={calculate}>calculate</button>
+            <button onClick={GetData}>Get Data</button>
             <br></br>
             <h5>ANSWER = {result}</h5>
+           
             <Plot
             data={[
               {
@@ -98,7 +111,25 @@ function test() {
                 y: graphY,
                 type: 'scatter',
                 mode: 'lines',
+                name : "Graph",
                 marker: {color: 'red'},
+              },
+              {
+                x: arrX,
+                y: arrY,
+                mode: 'markers',
+                type: 'scatter',
+                name : "input",
+                marker: { size: 12 },
+              }, 
+              {
+                x: [input],
+                y: [result],
+                mode: 'markers',
+                type: 'scatter',
+                name : "Answer",
+                marker: {size : 20, color:'blue'},
+                
               },
             ]}
             layout={ {width: 600, height: 400, title: 'Spline test'} }
